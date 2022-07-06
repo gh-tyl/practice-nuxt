@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  client:
+    container_name: rssd_frontend
+    build: ./
+    working_dir: "/src"
+    volumes:
+      - ./src:/src
+      - node_modules_volume:/src/node_modules
+    ports:
+      - "${PORT}:${PORT}"
+    tty: true
+    env_file:
+      - ./.env
+    environment:
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - NODE_ENV=${NODE_ENV}
+      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
+
+volumes:
+  node_modules_volume:
