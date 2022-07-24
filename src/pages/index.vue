@@ -1,6 +1,7 @@
 <template>
   <div>
     <b-container>
+      <!-- 1 -->
       <div>
         <h1 class="mt-5">
           キーワードを入力してください。
@@ -21,6 +22,7 @@
           </b-list-group>
         </div>
       </div>
+      <!-- 8 -->
       <div>
         <b-form-file
           v-model="file"
@@ -28,10 +30,34 @@
           placeholder="Choose a file or drop it here..."
           drop-placeholder="Drop file here..."
         />
-        <div class="mt-3">Selected file: {{ file ? file.name : '' }}</div>
+        <div class="mt-3">
+          Selected file: {{ file ? file.name : '' }}
+        </div>
         <b-button class="" @click="fileUpload">
           Upload
         </b-button>
+      </div>
+      <!-- 3 -->
+      <div>
+        <p v-if="$fetchState.pending">
+          Fetching samples...
+        </p>
+        <p v-else-if="$fetchState.error">
+          An error occurred :(
+        </p>
+        <div v-else>
+          <h1>samples</h1>
+          <b-table
+            striped
+            hover
+            sticky-header
+            :items="csv_values"
+            :fields="headers"
+          />
+        </div>
+        <button @click="$fetch">
+          Refresh
+        </button>
       </div>
     </b-container>
   </div>
@@ -45,8 +71,25 @@ export default {
       words: [],
       fileupload: false,
       filename: '',
-      file: null
+      file: null,
+      csv_get: {},
+      samples: [],
+      headers: [],
+      csv_values: []
     }
+  },
+  async fetch () {
+    console.log('Start fetch')
+    this.csv_get = await fetch(
+      'http://0.0.0.0:4000/aialgo7/'
+    ).then(res => res.json())
+    // csv_data(配列)を取得
+    const csvData = this.csv_get.body.csv_data
+    // ヘッダーとそれぞれの要素に分ける
+    this.headers = csvData.slice(0, 1)
+    console.log('this.headers: ', this.headers)
+    this.csv_values = csvData.slice(1, -1)
+    console.log('this.csv_values: ', this.csv_values)
   },
   methods: {
     async getWords () {
